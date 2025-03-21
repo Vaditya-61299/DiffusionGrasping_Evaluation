@@ -1,0 +1,14 @@
+name: evaluation
+channels:
+  - nvidia/label/cuda-11.8.0
+  - nvidia
+  - defaults
+  - conda-forge
+  - https://repo.anaconda.com/pkgs/main
+  - https://repo.anaconda.com/pkgs/r
+dependencies:
+  - python=3.8.20=h4a871b0_2_cpython
+  - numpy=1.24.4=py38h59b608b_0
+  - pip
+  - pip:
+    - -r requirements.txt

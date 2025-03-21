@@ -1,0 +1,11 @@
+name: part2
+channels:
+  - conda-forge
+dependencies:
+  - python=3.8
+  - numpy
+  # You need numpy from conda to avoid difficulties with
+  # glibc and opengl issueas for visualization with trimesh/pyglet
+  - pip
+  - pip:
+    - -r file:/home/aditya/Desktop/part_2/graspLDM/requirements.txt
