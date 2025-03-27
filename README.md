@@ -11,9 +11,6 @@ A comparison of different grasp generation models based on diffusion
 ```
 conda env create -f evaluation.yml
 ```
-```
-
-```
 
 ### Install right pytorch
 first uninstall the available torch version using 
@@ -78,18 +75,19 @@ https://drive.google.com/file/d/13ouTJgFzCaPUiGNnLS0gD58f-6m2MwwC/view?usp=share
 
 # Structure of the directory after the downloads
 root
-└─── isaacgym
-│    │mesh_to_sdf
-│    │data
-│     └─── grasps
-│     │    │meshes
-│     │    │sdf
-│     │    │splits
-│     │    │models
-│     │     └─── model_1
-│     │    │    │model_2
-│     │    │    │model_3
-└─── DiffusionGrasping_Evaluation (repository)
+│───├── isaacgym
+│   ├── mesh_to_sdf
+│   ├── data
+│   │   ├── grasps
+│   │   │   ├── meshes
+│   │   │   ├── sdf
+│   │   │   ├── splits
+│   │   │   ├── models
+│   │   │   │   ├── model_1
+│   │   │   │   ├── model_2
+│   │   │   │   ├── model_3
+│── DiffusionGrasping_Evaluation (repository)
+
 
 # Errors that may occur and how to solve them
 ### Failed to build scikit-sparse
