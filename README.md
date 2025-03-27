@@ -74,7 +74,7 @@ mkdir cgdf_v1
 ```
 In the cgdf_v1 folder, download the model path from the following link
 ```
-https://drive.google.com/file/d/13ouTJgFzCaPUiGNnLS0gD58f-6m2MwwC/view?usp=share_link
+https://drive.google.com/drive/folders/1A9oGhv-gNkyMjSOfjKA4p6NcLVelIA-b?usp=sharing
 ```
 ### Install dependencies
 ```
