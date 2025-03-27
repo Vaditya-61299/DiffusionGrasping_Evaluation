@@ -8,7 +8,7 @@ from graspLDM.grasp_ldm.dataset.acronym.acronym_pointclouds import AcronymBaseDa
 import numpy as np
 import torch
 import json
-
+import os
 
 
 class EvaluatePointConditionedGeneratedGrasps():
@@ -206,7 +206,8 @@ class EvaluatePointConditionedGeneratedGrasps():
                 "Force Closure":self._force_closure[i]              #(is_stable   (small sing val crosses the threshold)      ,is_full_rank(==6)    ,_convex_hull(),  _random_wrench(able to resist any rando random wrench))
             }
             _result[f"Object Class: {self.obj_class}"]["Grasps"].append(grasp)
-        with open("Results.json","a") as f:
+        _dir=os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))),"LOGS")
+        with open(os.path.join(_dir,"Results.json"),"a") as f:
             json.dump(_result,f,indent=4,default=str)
     
     def reset(self):
