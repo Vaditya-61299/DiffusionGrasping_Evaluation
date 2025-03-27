@@ -74,18 +74,18 @@ https://drive.google.com/file/d/13ouTJgFzCaPUiGNnLS0gD58f-6m2MwwC/view?usp=share
 ```
 
 # Structure of the directory after the downloads
-root
-│───├── isaacgym
-│   ├── mesh_to_sdf
-│   ├── data
-│   │   ├── grasps
-│   │   │   ├── meshes
-│   │   │   ├── sdf
-│   │   │   ├── splits
-│   │   │   ├── models
-│   │   │   │   ├── model_1
-│   │   │   │   ├── model_2
-│   │   │   │   ├── model_3
+root <\ br>
+│───├── isaacgym <\ br>
+│   ├── mesh_to_sdf <\ br>
+│   ├── data <\ br>
+│   │   ├── grasps <\ br>
+│   │   │   ├── meshes <\ br>
+│   │   │   ├── sdf <\ br>
+│   │   │   ├── splits <\ br>
+│   │   │   ├── models <\ br>
+│   │   │   │   ├── model_1 <\ br>
+│   │   │   │   ├── model_2 <\ br>
+│   │   │   │   ├── model_3 <\ br>
 │── DiffusionGrasping_Evaluation (repository)
 
 
