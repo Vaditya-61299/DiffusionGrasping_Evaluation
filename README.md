@@ -100,3 +100,6 @@ then use the following command to install the rest of the dependencies:
 ```
 pip install -r requirements.txt
 ```
+# Acknowledgment
+
+This repository is heavily based on SE3-DiffusionFields(https://github.com/robotgradient/grasp_diffusion) , CGDF(https://github.com/constrained-grasp-diffusion/constrained-grasp-diffusion) and GraspLDM(https://github.com/kuldeepbrd1/graspLDM). The datset used is ACRONYM(https://github.com/NVlabs/acronym)
