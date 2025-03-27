@@ -7,9 +7,11 @@ A comparison of different grasp generation models based on diffusion
 
 # Setup
 ### Install Conda Environment
-'''
+
+```
 conda env create -f evaluation.yml
-'''
+
+```
 
 ### Install right pytorch
 first uninstall the available torch version using <br />
