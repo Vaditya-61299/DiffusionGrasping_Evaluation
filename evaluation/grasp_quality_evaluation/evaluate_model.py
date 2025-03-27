@@ -4,12 +4,11 @@ from scipy.spatial.transform import Rotation as R
 
 from DiffusionFields.se3dif.utils import to_numpy, to_torch
 from DiffusionFields.se3dif.datasets.acronym_dataset import AcronymGraspsDirectory
-from graspLDM.grasp_ldm.dataset.acronym.acronym_pointclouds import AcronymBaseDataset, AcronymShapenetPointclouds
 import numpy as np
 import torch
 import json
 import os
-
+from graspLDM.tools.inference import Conditioning, InferenceLDM, InferenceVAE, ModelType
 
 class EvaluatePointConditionedGeneratedGrasps():
 
@@ -117,8 +116,13 @@ class EvaluatePointConditionedGeneratedGrasps():
 
             return H
         else:
-            print ("GRASPLDM NOT IMPLEMENTED YET")
-            pass
+                results = model.infer(
+                 data_idx=self.obj_id,
+                 num_grasps=self.n_grasps,
+                 visualize=False,
+                 condition_type=Conditioning.UNCONDITIONAL,
+                 conditioning=None,
+             )
     def evaluate_grasps_success(self, H):
 
         grasp_evaluator = GraspSuccessEvaluator(n_envs=self.n_envs, idxs=[self.obj_id] * self.n_envs, obj_class=self.obj_class,
@@ -207,6 +211,9 @@ class EvaluatePointConditionedGeneratedGrasps():
             }
             _result[f"Object Class: {self.obj_class}"]["Grasps"].append(grasp)
         _dir=os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))),"LOGS")
+        if not os.path.exists(_dir):
+            os.mkdirs(_dir)
+            print ("new_splits directory created. You will find your test splits there")
         with open(os.path.join(_dir,"Results.json"),"a") as f:
             json.dump(_result,f,indent=4,default=str)
     

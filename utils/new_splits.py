@@ -1,7 +1,9 @@
 import os
 file_path=os.path.join(os.path.dirname(os.path.dirname(__file__)),"data")
 new_split_path=os.path.join(os.path.dirname(os.path.dirname(__file__)),"new_splits")
-
+if not os.path.exists(new_split_path):
+    os.mkdirs(new_split_path)
+    print ("new_splits directory created. You will find your test splits there")
 
 object_classes=["Mug","CerealBox","WineBottle","Plant","Knife","PSP","Spoon","Camera","WineGlass","Teacup","ToyFigure","Hat","Book","Ring","Hammer"]        #Put the name of class in this list that you want to test
 
@@ -21,9 +23,10 @@ for obj_class in object_classes:
         list.append(grasp_file)
     list=[line.strip().replace(".h5",".json") for line in list]
     list=[Path(line.strip()).name for line in list]
-    with open (os.path.join(new_split_path,f"{obj_class}.json" , "a") as file:
+    with open (os.path.join(new_split_path,f"{obj_class}.json") , "a") as file:
         _result={}
         _result["test"]=list
+        _result["train"]=[]
         json.dump(_result,file,indent=4,default=str)
 
 

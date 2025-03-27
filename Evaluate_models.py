@@ -1,15 +1,16 @@
 ### select the model ###
 
 ## FOR SE3DIF USE THIS
-#c=1
-#input="grasp_dif_multi"
+c=1
+input="grasp_dif_multi"
 
 ## FOR CGDF USE THIS
 #c=2
 #input="cgdf_v1"
 
-c=3    #Not working yet... do not use this
-input="graspLDM"
+## FOR GRASP_LDM USE THIS
+#c=3
+#input="graspLDM"
 
 grasp_gen_mode=False
 eval_model=True

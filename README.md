@@ -65,31 +65,45 @@ cd data
 sudo apt-get install git-lfs
 git lfs install
 git clone https://huggingface.co/camusean/grasp_diffusion
+```
+After cloning the link above, rename the "grasp_diffusion" folder to "models".
+Then, use the following commands
+```
 cd models
 mkdir cgdf_v1
 ```
-in the cgdf_v1 folder, download the model path from the following link
+In the cgdf_v1 folder, download the model path from the following link
 ```
 https://drive.google.com/file/d/13ouTJgFzCaPUiGNnLS0gD58f-6m2MwwC/view?usp=share_link
 ```
-
-# Structure of the directory after the downloads
+### Install dependencies
 ```
-root 
-│───├── isaacgym 
-│   ├── mesh_to_sdf 
-│   ├── data 
-│   │   ├── grasps 
-│   │   │   ├── meshes 
-│   │   │   ├── sdf 
-│   │   │   ├── splits 
-│   │   │   ├── models 
-│   │   │   │   ├── model_1 
-│   │   │   │   ├── model_2 
-│   │   │   │   ├── model_3 
-│── DiffusionGrasping_Evaluation (repository)
+pip install pykdtree
+pip install torch-scatter -f https://data.pyg.org/whl/torch-2.0.1+cu118.html
+```
+# Structure of the directory after the Setup
+```
+DiffusionGrasping_Evaluation (repository) 
+├── isaacgym 
+├── mesh_to_sdf 
+├── data 
+│   ├── grasps 
+│   │   ├── meshes 
+│   │   ├── sdf 
+│   │   ├── splits 
+│   │   ├── models 
+│   │   │   ├── model_1 
+│   │   │   ├── model_2 
+│   │   │   ├── model_3 
+├── (other files of the repository)
 ```
 
+# Instructions on getting the results
+1) Open the Evaluate_models.py script.
+2) Choose the model that you want to check. MAKE SURE TO COMMENT OUT THE OTHER MODELS
+3) After running, the result will be saved in the LOGS folder.
+4) Run utils/corrector.py to make result file work.
+5) Run utils/results_extractor.py to check the results.
 # Errors that may occur and how to solve them
 ### Failed to build scikit-sparse
 use the following command: 
@@ -100,6 +114,7 @@ then use the following command to install the rest of the dependencies:
 ```
 pip install -r requirements.txt
 ```
+
 # Acknowledgment
 
 This repository is heavily based on SE3-DiffusionFields(https://github.com/robotgradient/grasp_diffusion) , CGDF(https://github.com/constrained-grasp-diffusion/constrained-grasp-diffusion) and GraspLDM(https://github.com/kuldeepbrd1/graspLDM). The datset used is ACRONYM(https://github.com/NVlabs/acronym)
