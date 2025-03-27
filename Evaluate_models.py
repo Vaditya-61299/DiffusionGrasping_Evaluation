@@ -5,17 +5,17 @@
 #input="grasp_dif_multi"
 
 ## FOR CGDF USE THIS
-c=2
-input="cgdf_v1"
+#c=2
+#input="cgdf_v1"
 
-#c=3    #Not working yet... do not use this
-#input="graspLDM"
+c=3    #Not working yet... do not use this
+input="graspLDM"
 
 grasp_gen_mode=False
 eval_model=True
 
-#object_classes=["Mug","CerealBox","WineBottle","Plant","Knife","PSP","Spoon","Camera","WineGlass","Teacup","ToyFigure","Hat","Book","Ring","Hammer"]
-object_classes=["Mug"]
+object_classes=["Mug","CerealBox","WineBottle","Plant","Knife","PSP","Spoon","Camera","WineGlass","Teacup","ToyFigure","Hat","Book","Ring","Hammer"]
+#object_classes=["Mug"]
 def parse_args(input):
     p = configargparse.ArgumentParser()
     p.add('-c', '--config_filepath', required=False, is_config_file=True, help='Path to config file.')
@@ -49,7 +49,22 @@ def parse_args(input):
     opt = p.parse_args()
     return opt
 
-
+def set_graspLDM_model(obj_class):
+    exp_name = os.path.basename(args.exp_path)
+    exp_out_root = os.path.dirname(args.exp_path)
+    model = InferenceLDM(
+            exp_name=exp_name,
+            exp_out_root=exp_out_root,
+            use_elucidated=False,
+            data_root=args.data_root,
+            load_dataset=True,
+            num_inference_steps=args.inference_steps,
+            use_fast_sampler=False,
+            data_split=args.split,
+            use_ema_model=args.use_ema_model,
+            obj_class=obj_class,
+        )
+    return model
 def get_model_and_generator(p, args, device='cpu',model_input=1):
     model_params = args.model
     batch = int(args.n_grasps)
@@ -67,23 +82,6 @@ def get_model_and_generator(p, args, device='cpu',model_input=1):
         generator = Grasp_AnnealedLD(model, batch=batch, T=70, T_fit=50, k_steps=2, device=device, model_input=c,)          ### model c tells which generator.. for se3dif or cgdf (for now)... #### TO DO: CHANGE THE CONDITION SO THAT GraspLDM IS ALSO ACCEPTED
         return generator, model
 
-    if model_input==3:
-        exp_name = os.path.basename(args.exp_path)
-        exp_out_root = os.path.dirname(args.exp_path)
-        model = InferenceLDM(
-            exp_name=exp_name,
-            exp_out_root=exp_out_root,
-            use_elucidated=False,
-            data_root=args.data_root,
-            load_dataset=True,
-            num_inference_steps=args.inference_steps,
-            use_fast_sampler=False,
-            data_split=args.split,
-            use_ema_model=args.use_ema_model,
-            obj_class=args.obj_class,
-        )
-        model.model.set_latent(xyz=context,num_grasps=int(args.n_grasps))
-        return context,model
     else:
         print("Model not available for this number")
         raise RuntimeError
@@ -168,7 +166,7 @@ P, mesh, trans, rot_quad = sample_pointcloud(obj_id, obj_class,model_input=c)
 if c==1 or c==2:
     generator, model = get_model_and_generator(P, args, device,model_input=c)
 if c==3:
-    context, model = get_model_and_generator(P, args, device,model_input=c)
+    pass
 print ("Code working fine for now till here")
 
 
@@ -178,22 +176,28 @@ if grasp_gen_mode and eval_model==False:
     if c==1:
         H = generator.sample(model_input=c)           #t needed for cgfd      see if this causes problem for the se3dif           t is needed just for energy based grasps
         H_grasp = copy.deepcopy(H)
+        H_grasp[:, :3, -1] = (H_grasp[:, :3, -1] - torch.as_tensor(trans[:3,-1],device=device)).float()
+        H[..., :3, -1] *=1/8.
+        H_grasp[..., :3, -1] *=1/8.
     if c==2:
         H  ,t = generator.sample(model_input=c)
         H_grasp = copy.deepcopy(H)
+        H_grasp[:, :3, -1] = (H_grasp[:, :3, -1] - torch.as_tensor(trans[:3,-1],device=device)).float()
+        H[..., :3, -1] *=1/8.
+        H_grasp[..., :3, -1] *=1/8.
     if c==3:
+        model=set_graspLDM_model(args.obj_class)
         condition_type = Conditioning.UNCONDITIONAL
         conditioning = None
-        out,step_outs=model.model.generate_grasps()
-        tmrp,_=out
-        H_grasps=tmrp_to_H(tmrp)
+        results = model.infer(
+         data_idx=args.obj_id,
+         num_grasps=args.num_grasps,
+         visualize=args.visualize,
+         condition_type=condition_type,
+         conditioning=conditioning,
+        )
+        H_grasps=results["grasps"]
         H=torch.squeeze(H_grasps)
-        H_grasp=H
-    
-    H_grasp[:, :3, -1] = (H_grasp[:, :3, -1] - torch.as_tensor(trans[:3,-1],device=device)).float()
-    H[..., :3, -1] *=1/8.
-    H_grasp[..., :3, -1] *=1/8.
-    #print(H)
 
     print("no problem till here")
     EVAL_SIMULATION = args.eval_sim
@@ -214,21 +218,42 @@ if grasp_gen_mode and eval_model==False:
 elif eval_model and grasp_gen_mode==False:
     len=len(AcronymGraspsDirectory(data_type=args.obj_class).avail_obj)
     from evaluation.grasp_quality_evaluation.evaluate_model import EvaluatePointConditionedGeneratedGrasps
-    for j in object_classes:
-        obj_class=j
-        for i in range(82,101):
-            obj_id=i
-            if obj_class=="Camera" and obj_id==4:   # id 4 for camera has no good grasps and we need that for EMD
-                obj_id+=1
-    
-            evaluator = EvaluatePointConditionedGeneratedGrasps(generator, n_grasps=n_grasps, obj_id=obj_id, obj_class=obj_class, n_envs=n_envs,
-                                                        viewer=False,model_input=c)
-
-            success_cases, edd_mean, edd_std = evaluator.generate_and_evaluate(success_eval=True, earth_moving_distance=True)
-    #print('Success cases : {}'.format(success_cases))
-            print(f"earth moving distance- dataset-datset:       mean: {edd_mean}       standard deviation: {edd_std}")
+    if c==2 or c==1:
+        for j in object_classes:
+            obj_class=j
             
-            del evaluator
+            for i in range(0,5):
+                obj_id=i
+                if obj_class=="Camera" and obj_id==4:   # id 4 for camera has no good grasps and we need that for EMD
+                    obj_id+=1
+        
+                evaluator = EvaluatePointConditionedGeneratedGrasps(generator, n_grasps=n_grasps, obj_id=obj_id, obj_class=obj_class, n_envs=n_envs,
+                                                            viewer=False,model_input=c)
+
+                success_cases, edd_mean, edd_std = evaluator.generate_and_evaluate(success_eval=True, earth_moving_distance=True)
+        #print('Success cases : {}'.format(success_cases))
+                print(f"earth moving distance- dataset-datset:       mean: {edd_mean}       standard deviation: {edd_std}")
+                
+                del evaluator
+    if c==3:
+        for j in object_classes:
+            obj_class=j
+            generator=set_graspLDM_model(obj_class)
+
+            for i in range(0,5):
+                obj_id=i
+                if obj_class=="Camera" and obj_id==4:   # id 4 for camera has no good grasps and we need that for EMD
+                    obj_id+=1
+        
+                evaluator = EvaluatePointConditionedGeneratedGrasps(generator, n_grasps=n_grasps, obj_id=obj_id, obj_class=obj_class, n_envs=n_envs,
+                                                            viewer=False,model_input=c)
+
+                success_cases, edd_mean, edd_std = evaluator.generate_and_evaluate(success_eval=True, earth_moving_distance=True)
+        #print('Success cases : {}'.format(success_cases))
+                print(f"earth moving distance- dataset-datset:       mean: {edd_mean}       standard deviation: {edd_std}")
+                
+                del evaluator
+
 
 
 
